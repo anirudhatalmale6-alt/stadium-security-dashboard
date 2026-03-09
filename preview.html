@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Stadium Security KPI Dashboard</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+--bg:#0D1B2A;--bg2:#0a1420;--card:#1B2A4A;--card-hover:#213358;
+--green:#06D6A0;--yellow:#FFD166;--red:#EF476F;--blue:#3A86FF;
+--teal:#00B4D8;--purple:#8338EC;--orange:#FB8500;
+--text:#e0e6ed;--text-dim:#6b7d95;--text-muted:#3d5068;
+--border:rgba(58,134,255,0.12);--glow:rgba(6,214,160,0.08);
+}
+html{font-size:14px;scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;min-height:100vh;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse at 20% 0%,rgba(58,134,255,0.04) 0%,transparent 60%),radial-gradient(ellipse at 80% 100%,rgba(6,214,160,0.03) 0%,transparent 50%);pointer-events:none;z-index:0}
+
+.dashboard{position:relative;z-index:1;max-width:1600px;margin:0 auto;padding:16px 20px 40px}
+
+/* HEADER */
+.header{display:flex;align-items:center;justify-content:space-between;padding:14px 24px;margin-bottom:16px;background:linear-gradient(135deg,rgba(27,42,74,0.9),rgba(13,27,42,0.95));border:1px solid var(--border);border-radius:12px;backdrop-filter:blur(10px);position:relative;overflow:hidden}
+.header::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--blue),var(--teal),var(--green));opacity:0.7}
+.header-left{display:flex;align-items:center;gap:14px}
+.header-icon{width:42px;height:42px;background:linear-gradient(135deg,var(--blue),var(--teal));border-radius:10px;display:grid;place-items:center;font-size:20px;box-shadow:0 4px 16px rgba(58,134,255,0.25)}
+.header h1{font-size:1.35rem;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;background:linear-gradient(90deg,#fff,var(--teal));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.header p{font-family:'JetBrains Mono',monospace;font-size:0.7rem;color:var(--text-dim);letter-spacing:1px;margin-top:2px}
+.header-right{display:flex;align-items:center;gap:16px}
+.live-badge{display:flex;align-items:center;gap:6px;padding:5px 12px;background:rgba(6,214,160,0.1);border:1px solid rgba(6,214,160,0.3);border-radius:20px;font-family:'JetBrains Mono',monospace;font-size:0.7rem;color:var(--green);letter-spacing:1px}
+.live-dot{width:7px;height:7px;background:var(--green);border-radius:50%;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(6,214,160,0.4)}50%{opacity:0.6;box-shadow:0 0 0 6px rgba(6,214,160,0)}}
+.event-tag{padding:5px 12px;background:rgba(58,134,255,0.1);border:1px solid rgba(58,134,255,0.2);border-radius:8px;font-size:0.75rem;color:var(--blue);font-weight:500}
+
+/* GRID */
+.grid-row{display:grid;gap:12px;margin-bottom:12px}
+.grid-6{grid-template-columns:repeat(6,1fr)}
+.grid-7{grid-template-columns:repeat(7,1fr)}
+.grid-2{grid-template-columns:1fr 1fr}
+.grid-3{grid-template-columns:1fr 1fr 1fr}
+
+/* CARDS */
+.card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px;position:relative;overflow:hidden;transition:all 0.3s ease}
+.card:hover{background:var(--card-hover);border-color:rgba(58,134,255,0.25);transform:translateY(-1px);box-shadow:0 8px 24px rgba(0,0,0,0.3)}
+.card::after{content:'';position:absolute;top:0;left:0;right:0;height:2px;border-radius:10px 10px 0 0;opacity:0.8}
+
+/* STAT CARDS */
+.stat-card{text-align:center;padding:18px 12px}
+.stat-card .label{font-family:'JetBrains Mono',monospace;font-size:0.6rem;text-transform:uppercase;letter-spacing:1.5px;color:var(--text-dim);margin-bottom:8px}
+.stat-card .value{font-size:2rem;font-weight:800;line-height:1;margin-bottom:6px;font-family:'Outfit',sans-serif}
+.stat-card .sub{font-size:0.7rem;color:var(--text-dim);font-family:'JetBrains Mono',monospace}
+.stat-card .sub .up{color:var(--green)}
+.stat-card .sub .down{color:var(--red)}
+.stat-card.green::after{background:var(--green)}.stat-card.green .value{color:var(--green)}
+.stat-card.yellow::after{background:var(--yellow)}.stat-card.yellow .value{color:var(--yellow)}
+.stat-card.blue::after{background:var(--blue)}.stat-card.blue .value{color:var(--blue)}
+.stat-card.red::after{background:var(--red)}.stat-card.red .value{color:var(--red)}
+.stat-card.teal::after{background:var(--teal)}.stat-card.teal .value{color:var(--teal)}
+.stat-card.purple::after{background:var(--purple)}.stat-card.purple .value{color:var(--purple)}
+
+/* GAUGE CARDS */
+.gauge-card{text-align:center;padding:14px 8px 12px}
+.gauge-card .gauge-label{font-family:'JetBrains Mono',monospace;font-size:0.58rem;text-transform:uppercase;letter-spacing:1px;color:var(--text-dim);margin-bottom:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.gauge-wrap{position:relative;width:110px;height:60px;margin:0 auto 6px;overflow:hidden}
+.gauge-bg,.gauge-fill{position:absolute;width:110px;height:110px;border-radius:50%;border:10px solid transparent;top:0;left:0;clip-path:polygon(0 0,100% 0,100% 50%,0 50%)}
+.gauge-bg{border-color:rgba(255,255,255,0.06)}
+.gauge-fill{transition:transform 1.5s cubic-bezier(0.34,1.56,0.64,1)}
+.gauge-val{font-size:1.35rem;font-weight:700;position:absolute;bottom:0;left:50%;transform:translateX(-50%)}
+.gauge-status{font-size:0.6rem;font-weight:600;letter-spacing:1px;text-transform:uppercase;padding:2px 8px;border-radius:4px;display:inline-block;margin-top:2px}
+.gauge-status.on{background:rgba(6,214,160,0.15);color:var(--green)}
+.gauge-status.att{background:rgba(255,209,102,0.15);color:var(--yellow)}
+
+/* SECTION DIVIDER */
+.section-label{font-family:'JetBrains Mono',monospace;font-size:0.65rem;text-transform:uppercase;letter-spacing:2px;color:var(--text-muted);padding:8px 0 4px;display:flex;align-items:center;gap:10px}
+.section-label::after{content:'';flex:1;height:1px;background:var(--border)}
+
+/* CHART CARDS */
+.chart-card{padding:18px 20px}
+.chart-card h3{font-size:0.85rem;font-weight:600;margin-bottom:14px;color:var(--text);display:flex;align-items:center;gap:8px}
+.chart-card h3 span{font-size:0.6rem;color:var(--text-dim);font-family:'JetBrains Mono',monospace;font-weight:400}
+
+/* TABLE */
+.kpi-table{width:100%;border-collapse:separate;border-spacing:0;font-size:0.75rem}
+.kpi-table thead th{font-family:'JetBrains Mono',monospace;font-size:0.6rem;text-transform:uppercase;letter-spacing:1px;color:var(--text-dim);padding:8px 10px;text-align:left;border-bottom:1px solid var(--border);font-weight:500}
+.kpi-table tbody tr{transition:background 0.2s}
+.kpi-table tbody tr:hover{background:rgba(58,134,255,0.04)}
+.kpi-table td{padding:7px 10px;border-bottom:1px solid rgba(58,134,255,0.06);color:var(--text)}
+.kpi-table .cat{color:var(--blue);font-weight:500;font-size:0.68rem}
+.kpi-table .status-badge{font-size:0.65rem;padding:2px 7px;border-radius:4px;font-weight:500;white-space:nowrap}
+.kpi-table .status-badge.on{background:rgba(6,214,160,0.12);color:var(--green)}
+.kpi-table .status-badge.att{background:rgba(255,209,102,0.12);color:var(--yellow)}
+.kpi-table .status-badge.info{background:rgba(58,134,255,0.12);color:var(--blue)}
+.kpi-table .var-up{color:var(--green);font-family:'JetBrains Mono',monospace;font-size:0.68rem}
+.kpi-table .var-down{color:var(--yellow);font-family:'JetBrains Mono',monospace;font-size:0.68rem}
+.kpi-table .var-neutral{color:var(--text-muted);font-family:'JetBrains Mono',monospace;font-size:0.68rem}
+
+/* DONUT MINI */
+.donut-wrap{display:flex;align-items:center;gap:14px;justify-content:center;margin-top:6px}
+.donut-canvas-wrap{width:70px;height:70px}
+.donut-legend{text-align:left}
+.donut-legend div{display:flex;align-items:center;gap:5px;font-size:0.65rem;margin-bottom:3px;font-family:'JetBrains Mono',monospace;color:var(--text-dim)}
+.donut-legend .dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+
+/* ANIMATIONS */
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.card{animation:fadeUp 0.5s ease backwards}
+.grid-row:nth-child(2) .card{animation-delay:0.05s}
+.grid-row:nth-child(3) .card{animation-delay:0.15s}
+.grid-row:nth-child(4) .card{animation-delay:0.25s}
+.grid-row:nth-child(2) .card:nth-child(2){animation-delay:0.08s}
+.grid-row:nth-child(2) .card:nth-child(3){animation-delay:0.11s}
+.grid-row:nth-child(2) .card:nth-child(4){animation-delay:0.14s}
+.grid-row:nth-child(2) .card:nth-child(5){animation-delay:0.17s}
+.grid-row:nth-child(2) .card:nth-child(6){animation-delay:0.20s}
+
+@media(max-width:1200px){.grid-6{grid-template-columns:repeat(3,1fr)}.grid-7{grid-template-columns:repeat(4,1fr)}.grid-2{grid-template-columns:1fr}}
+@media(max-width:768px){.grid-6,.grid-7{grid-template-columns:repeat(2,1fr)}.grid-3{grid-template-columns:1fr}.dashboard{padding:10px}}
+</style>
+</head>
+<body>
+<div class="dashboard">
+
+<!-- HEADER -->
+<div class="header">
+<div class="header-left">
+<div class="header-icon">🏟️</div>
+<div>
+<h1>Stadium Security KPI Dashboard</h1>
+<p>Real-Time Monitoring &bull; PostgreSQL &bull; Grafana</p>
+</div>
+</div>
+<div class="header-right">
+<div class="event-tag">📅 International Friendly — Mar 8, 2026</div>
+<div class="live-badge"><span class="live-dot"></span>LIVE</div>
+</div>
+</div>
+
+<!-- STAT CARDS -->
+<div class="section-label">Key Metrics</div>
+<div class="grid-row grid-6">
+<div class="card stat-card green">
+<div class="label">Overall Security Score</div>
+<div class="value">95.4%</div>
+<div class="sub"><span class="up">▲ 2.2%</span> vs last event</div>
+</div>
+<div class="card stat-card yellow">
+<div class="label">Total Incidents</div>
+<div class="value">18</div>
+<div class="sub">Reports handled</div>
+</div>
+<div class="card stat-card teal">
+<div class="label">Avg Response Time</div>
+<div class="value">2.2m</div>
+<div class="sub"><span class="up">✓</span> Target &lt; 3.0 min</div>
+</div>
+<div class="card stat-card blue">
+<div class="label">Fan Satisfaction</div>
+<div class="value">89%</div>
+<div class="sub"><span class="up">▲ 2.7%</span> improving</div>
+</div>
+<div class="card stat-card green">
+<div class="label">Fan Complaints</div>
+<div class="value">3</div>
+<div class="sub"><span class="up">↓ 40%</span> vs last event</div>
+</div>
+<div class="card stat-card" style="padding:12px 10px">
+<div class="label">Status Distribution</div>
+<div class="donut-wrap">
+<div class="donut-canvas-wrap"><canvas id="donutMini"></canvas></div>
+<div class="donut-legend">
+<div><span class="dot" style="background:var(--green)"></span>On Target: 25</div>
+<div><span class="dot" style="background:var(--yellow)"></span>Attention: 4</div>
+<div><span class="dot" style="background:var(--red)"></span>Below: 1</div>
+</div>
+</div>
+</div>
+</div>
+
+<!-- GAUGE CARDS -->
+<div class="section-label">Category Scores</div>
+<div class="grid-row grid-7" id="gaugeRow">
+</div>
+
+<!-- CHARTS -->
+<div class="section-label">Performance Analytics</div>
+<div class="grid-row grid-2">
+<div class="card chart-card" style="--i:0">
+<h3>Category Performance vs Target <span>95% BASELINE</span></h3>
+<canvas id="barChart" height="220"></canvas>
+</div>
+<div class="card chart-card" style="--i:1">
+<h3>KPI Trend Across Events <span>3 EVENTS</span></h3>
+<canvas id="lineChart" height="220"></canvas>
+</div>
+</div>
+
+<!-- TABLES -->
+<div class="section-label">Detailed KPI Breakdown — Latest Event</div>
+<div class="grid-row grid-3">
+<div class="card" style="padding:14px 16px;overflow-x:auto">
+<h3 style="font-size:0.8rem;margin-bottom:10px;color:var(--blue)">🛡️ Security Readiness</h3>
+<table class="kpi-table">
+<thead><tr><th>KPI</th><th>Target</th><th>Actual</th><th>Status</th></tr></thead>
+<tbody>
+<tr><td>MoS security plans completion</td><td>100%</td><td>100%</td><td><span class="status-badge on">✅ On Target</span></td></tr>
+<tr><td>Joint security drills</td><td>4</td><td>4</td><td><span class="status-badge on">✅ On Target</span></td></tr>
+<tr><td>Ops room readiness time</td><td>3h</td><td>3h</td><td><span class="status-badge on">✅ On Target</span></td></tr>
+<tr><td>Security clearance completion</td><td>100%</td><td>100%</td><td><span class="status-badge on">✅ On Target</span></td></tr>
+<tr><td>Accreditation rate</td><td>100%</td><td>98%</td><td><span class="status-badge on">✅ On Target</span></td></tr>
+<tr><td>CCTV readiness</td><td>100%</td><td>100%</td><td><span class="status-badge on">✅ On Target</span></td></tr>
+<tr><td>MIFON integration</td><td>100%</td><td>95%</td><td><span class="status-badge on">✅ On Target</span></td></tr>
+</tbody>
+</table>
+</div>
+<div class="card" style="padding:14px 16px;overflow-x:auto">
+<h3 style="font-size:0.8rem;margin-bottom:10px;color:var(--teal)">👥 Crowd Management</h3>
+<table class="kpi-table">
+<thead><tr><th>KPI</th><th>Target</th><th>Actual</th><th>Status</th></tr></thead>
+<tbody>
+<tr><td>Avg fan entry time</td><td>8m</td><td>7.8m</td><td><span class="status-badge on">✅ On Target</span></td></tr>
+<tr><td>Crowd density</td><td>4/m²</td><td>3.5/m²</td><td><span class="status-badge on">✅ On Target</span></td></tr>
+<tr><td>Crowd surge incidents</td><td>0</td><td>0</td><td><span class="status-badge on">✅ On Target</span></td></tr>
+<tr><td>Gates opened on time</td><td>100%</td><td>100%</td><td><span class="status-badge on">✅ On Target</span></td></tr>
+<tr><td>Companies approved by MoS</td><td>100%</td><td>97%</td><td><span class="status-badge on">✅ On Target</span></td></tr>
+<tr><td>Supervisors qualified</td><td>100%</td><td>94%</td><td><span class="status-badge att">⚠️ Attention</span></td></tr>
+</tbody>
+</table>
+</div>
+<div class="card" style="padding:14px 16px;overflow-x:auto">
+<h3 style="font-size:0.8rem;margin-bottom:10px;color:var(--green)">🔍 Screening & 🚨 Emergency</h3>
+<table class="kpi-table">
+<thead><tr><th>KPI</th><th>Target</th><th>Actual</th><th>Status</th></tr></thead>
+<tbody>
+<tr><td>Avg screening time</td><td>30s</td><td>28s</td><td><span class="status-badge on">✅ On Target</span></td></tr>
+<tr><td>Prohibited items found</td><td>0</td><td>5</td><td><span class="status-badge att">⚠️ Attention</span></td></tr>
+<tr><td>Screening compliance</td><td>100%</td><td>99%</td><td><span class="status-badge on">✅ On Target</span></td></tr>
+<tr><td>Unapproved banners</td><td>0</td><td>0</td><td><span class="status-badge on">✅ On Target</span></td></tr>
+<tr><td>Incident response time</td><td>3m</td><td>2.2m</td><td><span class="status-badge on">✅ On Target</span></td></tr>
+<tr><td>Incidents in target time</td><td>100%</td><td>98%</td><td><span class="status-badge on">✅ On Target</span></td></tr>
+<tr><td>Evacuation drill time</td><td>10m</td><td>9.2m</td><td><span class="status-badge on">✅ On Target</span></td></tr>
+<tr><td>Reports handled</td><td>—</td><td>18</td><td><span class="status-badge info">ℹ️ Info</span></td></tr>
+</tbody>
+</table>
+</div>
+</div>
+
+</div>
+
+<script>
+// Chart defaults
+Chart.defaults.color = '#6b7d95';
+Chart.defaults.font.family = "'JetBrains Mono', monospace";
+Chart.defaults.font.size = 10;
+
+// DONUT MINI
+new Chart(document.getElementById('donutMini'), {
+type:'doughnut',
+data:{labels:['On Target','Attention','Below'],datasets:[{data:[25,4,1],backgroundColor:['#06D6A0','#FFD166','#EF476F'],borderWidth:0,cutout:'70%'}]},
+options:{responsive:true,maintainAspectRatio:true,plugins:{legend:{display:false},tooltip:{enabled:true}}}
+});
+
+// GAUGE CARDS
+const gauges = [
+{name:'Security Readiness',icon:'🛡️',val:98.0,color:'#3A86FF',prev:96.3},
+{name:'Crowd Mgmt',icon:'👥',val:96.5,color:'#00B4D8',prev:93.8},
+{name:'Screening',icon:'🔍',val:97.3,color:'#06D6A0',prev:95.5},
+{name:'Emergency',icon:'🚨',val:95.8,color:'#FFD166',prev:93.2},
+{name:'Interagency',icon:'🤝',val:94.2,color:'#FB8500',prev:91.7},
+{name:'Cybersecurity',icon:'🔒',val:97.6,color:'#8338EC',prev:96.5},
+{name:'Fan Exp.',icon:'😊',val:88.7,color:'#EF476F',prev:86.0},
+];
+
+const gaugeRow = document.getElementById('gaugeRow');
+gauges.forEach((g,i) => {
+const pct = g.val;
+const diff = (g.val - g.prev).toFixed(1);
+const onTarget = pct >= 95;
+const statusClass = onTarget ? 'on' : 'att';
+const statusText = onTarget ? 'ON TARGET' : 'ATTENTION';
+const angle = (pct / 100) * 180;
+const card = document.createElement('div');
+card.className = 'card gauge-card';
+card.style.cssText = `--i:${i};animation-delay:${0.15 + i*0.04}s`;
+card.innerHTML = `
+<div class="gauge-label">${g.icon} ${g.name}</div>
+<div style="position:relative;width:100px;height:56px;margin:0 auto 4px;overflow:hidden">
+<svg width="100" height="56" viewBox="0 0 100 56">
+<path d="M 5 52 A 45 45 0 0 1 95 52" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="8" stroke-linecap="round"/>
+<path d="M 5 52 A 45 45 0 0 1 95 52" fill="none" stroke="${g.color}" stroke-width="8" stroke-linecap="round"
+stroke-dasharray="${(pct/100)*141.37} 141.37" opacity="0.9"/>
+</svg>
+<div style="position:absolute;bottom:0;width:100%;text-align:center;font-size:1.3rem;font-weight:700;color:${g.color}">${pct}%</div>
+</div>
+<div style="font-size:0.62rem;color:var(--green);font-family:'JetBrains Mono',monospace">▲ ${diff}%</div>
+<div class="gauge-status ${statusClass}">${statusText}</div>
+`;
+gaugeRow.appendChild(card);
+});
+
+// BAR CHART
+const catLabels = ['Sec. Ready','Crowd','Screening','Emergency','Interagency','Cyber','Fan Exp.'];
+const catScores = [98.0,96.5,97.3,95.8,94.2,97.6,88.7];
+const catColors = ['#3A86FF','#00B4D8','#06D6A0','#FFD166','#FB8500','#8338EC','#EF476F'];
+new Chart(document.getElementById('barChart'), {
+type:'bar',
+data:{
+labels: catLabels,
+datasets:[
+{label:'Score',data:catScores,backgroundColor:catColors.map(c=>c+'cc'),borderColor:catColors,borderWidth:1,borderRadius:4,barPercentage:0.6},
+{label:'Target (95%)',data:Array(7).fill(95),type:'line',borderColor:'#EF476F88',borderDash:[6,4],borderWidth:2,pointRadius:0,fill:false}
+]
+},
+options:{
+responsive:true,
+maintainAspectRatio:false,
+scales:{
+y:{min:82,max:100,grid:{color:'rgba(58,134,255,0.06)'},ticks:{callback:v=>v+'%'}},
+x:{grid:{display:false}}
+},
+plugins:{legend:{position:'bottom',labels:{usePointStyle:true,pointStyle:'rectRounded',padding:16,font:{size:10}}},tooltip:{callbacks:{label:ctx=>ctx.dataset.label+': '+ctx.parsed.y+'%'}}}
+}
+});
+
+// LINE CHART
+new Chart(document.getElementById('lineChart'), {
+type:'line',
+data:{
+labels:['Saudi Pro League\nFeb 15','AFC Champions\nFeb 28','Intl Friendly\nMar 8'],
+datasets:[
+{label:'Sec. Readiness',data:[95.5,96.3,98.0],borderColor:'#3A86FF',backgroundColor:'rgba(58,134,255,0.08)',fill:true,tension:0.4,pointRadius:5,pointHoverRadius:7,borderWidth:2},
+{label:'Crowd Mgmt',data:[91.2,93.8,96.5],borderColor:'#00B4D8',backgroundColor:'rgba(0,180,216,0.06)',fill:true,tension:0.4,pointRadius:5,pointHoverRadius:7,borderWidth:2},
+{label:'Emergency',data:[90.5,93.2,95.8],borderColor:'#FFD166',backgroundColor:'rgba(255,209,102,0.06)',fill:true,tension:0.4,pointRadius:5,pointHoverRadius:7,borderWidth:2},
+{label:'Fan Exp.',data:[84.0,86.0,88.7],borderColor:'#EF476F',backgroundColor:'rgba(239,71,111,0.06)',fill:true,tension:0.4,pointRadius:5,pointHoverRadius:7,borderWidth:2}
+]
+},
+options:{
+responsive:true,
+maintainAspectRatio:false,
+scales:{
+y:{min:80,max:100,grid:{color:'rgba(58,134,255,0.06)'},ticks:{callback:v=>v+'%'}},
+x:{grid:{display:false}}
+},
+plugins:{legend:{position:'bottom',labels:{usePointStyle:true,pointStyle:'circle',padding:16,font:{size:10}}},tooltip:{mode:'index',intersect:false,callbacks:{label:ctx=>ctx.dataset.label+': '+ctx.parsed.y+'%'}}}
+}
+});
+</script>
+</body>
+</html>
