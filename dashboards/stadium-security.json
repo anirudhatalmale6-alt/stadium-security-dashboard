@@ -1,0 +1,555 @@
+{
+  "annotations": { "list": [] },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "id": null,
+  "links": [],
+  "liveNow": false,
+  "panels": [
+    {
+      "type": "text",
+      "title": "",
+      "gridPos": { "h": 2, "w": 24, "x": 0, "y": 0 },
+      "id": 1,
+      "options": {
+        "mode": "html",
+        "content": "<div style=\"text-align:center;padding:8px 0\"><h1 style=\"margin:0;font-size:28px;color:#fff;letter-spacing:2px\">🏟️ STADIUM SECURITY KPI DASHBOARD</h1><p style=\"margin:4px 0 0;color:#8899aa;font-size:13px\">Real-Time Security Monitoring & Analytics</p></div>"
+      }
+    },
+    {
+      "type": "stat",
+      "title": "Overall Security Score",
+      "gridPos": { "h": 5, "w": 4, "x": 0, "y": 2 },
+      "id": 10,
+      "datasource": { "type": "postgres", "uid": "" },
+      "targets": [{
+        "rawSql": "SELECT ROUND(AVG(achievement_pct)::numeric, 1) as \"Overall Score\" FROM v_kpi_status WHERE event_name = '${event}' AND achievement_pct IS NOT NULL",
+        "format": "table",
+        "refId": "A"
+      }],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "#EF476F", "value": null },
+              { "color": "#FFD166", "value": 85 },
+              { "color": "#06D6A0", "value": 95 }
+            ]
+          },
+          "color": { "mode": "thresholds" }
+        }
+      },
+      "options": {
+        "reduceOptions": { "calcs": ["lastNotNull"] },
+        "textMode": "value",
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "center"
+      }
+    },
+    {
+      "type": "stat",
+      "title": "Total Incidents",
+      "gridPos": { "h": 5, "w": 4, "x": 4, "y": 2 },
+      "id": 11,
+      "datasource": { "type": "postgres", "uid": "" },
+      "targets": [{
+        "rawSql": "SELECT actual_value as \"Incidents\" FROM v_kpi_status WHERE event_name = '${event}' AND kpi_name = 'Security reports handled during event'",
+        "format": "table",
+        "refId": "A"
+      }],
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "#06D6A0", "value": null },
+              { "color": "#FFD166", "value": 15 },
+              { "color": "#EF476F", "value": 30 }
+            ]
+          },
+          "color": { "mode": "thresholds" }
+        }
+      },
+      "options": {
+        "reduceOptions": { "calcs": ["lastNotNull"] },
+        "textMode": "value",
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "center"
+      }
+    },
+    {
+      "type": "stat",
+      "title": "Avg Response Time",
+      "gridPos": { "h": 5, "w": 4, "x": 8, "y": 2 },
+      "id": 12,
+      "datasource": { "type": "postgres", "uid": "" },
+      "targets": [{
+        "rawSql": "SELECT actual_value as \"Response (min)\" FROM v_kpi_status WHERE event_name = '${event}' AND kpi_name = 'Average security incident response time'",
+        "format": "table",
+        "refId": "A"
+      }],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "m",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "#06D6A0", "value": null },
+              { "color": "#FFD166", "value": 3 },
+              { "color": "#EF476F", "value": 5 }
+            ]
+          },
+          "color": { "mode": "thresholds" }
+        }
+      },
+      "options": {
+        "reduceOptions": { "calcs": ["lastNotNull"] },
+        "textMode": "value",
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "center"
+      }
+    },
+    {
+      "type": "stat",
+      "title": "Fan Satisfaction",
+      "gridPos": { "h": 5, "w": 4, "x": 12, "y": 2 },
+      "id": 13,
+      "datasource": { "type": "postgres", "uid": "" },
+      "targets": [{
+        "rawSql": "SELECT actual_value as \"Satisfaction %\" FROM v_kpi_status WHERE event_name = '${event}' AND kpi_name = 'Fan satisfaction with security measures'",
+        "format": "table",
+        "refId": "A"
+      }],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "#EF476F", "value": null },
+              { "color": "#FFD166", "value": 80 },
+              { "color": "#06D6A0", "value": 90 }
+            ]
+          },
+          "color": { "mode": "thresholds" }
+        }
+      },
+      "options": {
+        "reduceOptions": { "calcs": ["lastNotNull"] },
+        "textMode": "value",
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "center"
+      }
+    },
+    {
+      "type": "stat",
+      "title": "Fan Complaints",
+      "gridPos": { "h": 5, "w": 4, "x": 16, "y": 2 },
+      "id": 14,
+      "datasource": { "type": "postgres", "uid": "" },
+      "targets": [{
+        "rawSql": "SELECT actual_value as \"Complaints\" FROM v_kpi_status WHERE event_name = '${event}' AND kpi_name = 'Number of security-related complaints'",
+        "format": "table",
+        "refId": "A"
+      }],
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "#06D6A0", "value": null },
+              { "color": "#FFD166", "value": 5 },
+              { "color": "#EF476F", "value": 10 }
+            ]
+          },
+          "color": { "mode": "thresholds" }
+        }
+      },
+      "options": {
+        "reduceOptions": { "calcs": ["lastNotNull"] },
+        "textMode": "value",
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "center"
+      }
+    },
+    {
+      "type": "piechart",
+      "title": "KPI Status Distribution",
+      "gridPos": { "h": 5, "w": 4, "x": 20, "y": 2 },
+      "id": 15,
+      "datasource": { "type": "postgres", "uid": "" },
+      "targets": [{
+        "rawSql": "SELECT status, COUNT(*) as count FROM v_kpi_status WHERE event_name = '${event}' AND status != 'Info' GROUP BY status ORDER BY CASE status WHEN 'On Target' THEN 1 WHEN 'Needs Attention' THEN 2 WHEN 'Below Target' THEN 3 END",
+        "format": "table",
+        "refId": "A"
+      }],
+      "options": {
+        "pieType": "donut",
+        "reduceOptions": { "calcs": ["lastNotNull"] },
+        "legend": { "displayMode": "list", "placement": "bottom" }
+      },
+      "fieldConfig": {
+        "overrides": [
+          { "matcher": { "id": "byName", "options": "On Target" }, "properties": [{ "id": "color", "value": { "fixedColor": "#06D6A0", "mode": "fixed" } }] },
+          { "matcher": { "id": "byName", "options": "Needs Attention" }, "properties": [{ "id": "color", "value": { "fixedColor": "#FFD166", "mode": "fixed" } }] },
+          { "matcher": { "id": "byName", "options": "Below Target" }, "properties": [{ "id": "color", "value": { "fixedColor": "#EF476F", "mode": "fixed" } }] }
+        ]
+      }
+    },
+    {
+      "type": "gauge",
+      "title": "🛡️ Security Readiness",
+      "gridPos": { "h": 6, "w": 4, "x": 0, "y": 7 },
+      "id": 20,
+      "datasource": { "type": "postgres", "uid": "" },
+      "targets": [{
+        "rawSql": "SELECT avg_achievement as \"Score\" FROM v_category_scores WHERE event_name = '${event}' AND category = 'Security Readiness'",
+        "format": "table",
+        "refId": "A"
+      }],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "min": 0, "max": 100,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "#EF476F", "value": null },
+              { "color": "#FFD166", "value": 85 },
+              { "color": "#06D6A0", "value": 95 }
+            ]
+          },
+          "color": { "mode": "thresholds" }
+        }
+      },
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"] }, "showThresholdLabels": false, "showThresholdMarkers": true }
+    },
+    {
+      "type": "gauge",
+      "title": "👥 Crowd Management",
+      "gridPos": { "h": 6, "w": 4, "x": 4, "y": 7 },
+      "id": 21,
+      "datasource": { "type": "postgres", "uid": "" },
+      "targets": [{
+        "rawSql": "SELECT avg_achievement as \"Score\" FROM v_category_scores WHERE event_name = '${event}' AND category = 'Crowd Management'",
+        "format": "table",
+        "refId": "A"
+      }],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent", "min": 0, "max": 100,
+          "thresholds": { "mode": "absolute", "steps": [{ "color": "#EF476F", "value": null }, { "color": "#FFD166", "value": 85 }, { "color": "#06D6A0", "value": 95 }] },
+          "color": { "mode": "thresholds" }
+        }
+      },
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"] }, "showThresholdLabels": false, "showThresholdMarkers": true }
+    },
+    {
+      "type": "gauge",
+      "title": "🔍 Screening & Inspection",
+      "gridPos": { "h": 6, "w": 4, "x": 8, "y": 7 },
+      "id": 22,
+      "datasource": { "type": "postgres", "uid": "" },
+      "targets": [{
+        "rawSql": "SELECT avg_achievement as \"Score\" FROM v_category_scores WHERE event_name = '${event}' AND category = 'Screening & Inspection'",
+        "format": "table",
+        "refId": "A"
+      }],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent", "min": 0, "max": 100,
+          "thresholds": { "mode": "absolute", "steps": [{ "color": "#EF476F", "value": null }, { "color": "#FFD166", "value": 85 }, { "color": "#06D6A0", "value": 95 }] },
+          "color": { "mode": "thresholds" }
+        }
+      },
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"] }, "showThresholdLabels": false, "showThresholdMarkers": true }
+    },
+    {
+      "type": "gauge",
+      "title": "🚨 Emergency Response",
+      "gridPos": { "h": 6, "w": 4, "x": 12, "y": 7 },
+      "id": 23,
+      "datasource": { "type": "postgres", "uid": "" },
+      "targets": [{
+        "rawSql": "SELECT avg_achievement as \"Score\" FROM v_category_scores WHERE event_name = '${event}' AND category = 'Emergency Response'",
+        "format": "table",
+        "refId": "A"
+      }],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent", "min": 0, "max": 100,
+          "thresholds": { "mode": "absolute", "steps": [{ "color": "#EF476F", "value": null }, { "color": "#FFD166", "value": 85 }, { "color": "#06D6A0", "value": 95 }] },
+          "color": { "mode": "thresholds" }
+        }
+      },
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"] }, "showThresholdLabels": false, "showThresholdMarkers": true }
+    },
+    {
+      "type": "gauge",
+      "title": "🤝 Interagency Coordination",
+      "gridPos": { "h": 6, "w": 4, "x": 16, "y": 7 },
+      "id": 24,
+      "datasource": { "type": "postgres", "uid": "" },
+      "targets": [{
+        "rawSql": "SELECT avg_achievement as \"Score\" FROM v_category_scores WHERE event_name = '${event}' AND category = 'Interagency Coordination'",
+        "format": "table",
+        "refId": "A"
+      }],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent", "min": 0, "max": 100,
+          "thresholds": { "mode": "absolute", "steps": [{ "color": "#EF476F", "value": null }, { "color": "#FFD166", "value": 85 }, { "color": "#06D6A0", "value": 95 }] },
+          "color": { "mode": "thresholds" }
+        }
+      },
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"] }, "showThresholdLabels": false, "showThresholdMarkers": true }
+    },
+    {
+      "type": "gauge",
+      "title": "🔒 Cybersecurity",
+      "gridPos": { "h": 6, "w": 4, "x": 20, "y": 7 },
+      "id": 25,
+      "datasource": { "type": "postgres", "uid": "" },
+      "targets": [{
+        "rawSql": "SELECT avg_achievement as \"Score\" FROM v_category_scores WHERE event_name = '${event}' AND category = 'Cybersecurity'",
+        "format": "table",
+        "refId": "A"
+      }],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent", "min": 0, "max": 100,
+          "thresholds": { "mode": "absolute", "steps": [{ "color": "#EF476F", "value": null }, { "color": "#FFD166", "value": 85 }, { "color": "#06D6A0", "value": 95 }] },
+          "color": { "mode": "thresholds" }
+        }
+      },
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"] }, "showThresholdLabels": false, "showThresholdMarkers": true }
+    },
+    {
+      "type": "barchart",
+      "title": "Category Performance vs Target (95%)",
+      "gridPos": { "h": 9, "w": 12, "x": 0, "y": 13 },
+      "id": 30,
+      "datasource": { "type": "postgres", "uid": "" },
+      "targets": [{
+        "rawSql": "SELECT category as \"Category\", avg_achievement as \"Achievement %\", 95.0 as \"Target\" FROM v_category_scores WHERE event_name = '${event}' ORDER BY sort_order",
+        "format": "table",
+        "refId": "A"
+      }],
+      "fieldConfig": {
+        "defaults": {
+          "min": 80, "max": 100,
+          "color": { "mode": "palette-classic" }
+        },
+        "overrides": [
+          { "matcher": { "id": "byName", "options": "Achievement %" }, "properties": [{ "id": "color", "value": { "fixedColor": "#3A86FF", "mode": "fixed" } }] },
+          { "matcher": { "id": "byName", "options": "Target" }, "properties": [{ "id": "color", "value": { "fixedColor": "#EF476F", "mode": "fixed" } }, { "id": "custom.lineWidth", "value": 2 }] }
+        ]
+      },
+      "options": {
+        "orientation": "vertical",
+        "barWidth": 0.6,
+        "groupWidth": 0.7,
+        "legend": { "displayMode": "list", "placement": "bottom" },
+        "tooltip": { "mode": "multi" },
+        "xTickLabelRotation": -45
+      }
+    },
+    {
+      "type": "timeseries",
+      "title": "KPI Trend Across Events",
+      "gridPos": { "h": 9, "w": 12, "x": 12, "y": 13 },
+      "id": 31,
+      "datasource": { "type": "postgres", "uid": "" },
+      "targets": [{
+        "rawSql": "SELECT e.event_date as time, c.name as metric, cs.avg_achievement as value FROM v_category_scores cs JOIN events e ON cs.event_name = e.event_name JOIN categories c ON cs.category = c.name WHERE cs.category IN ('Security Readiness', 'Crowd Management', 'Emergency Response', 'Fan Security Experience') ORDER BY e.event_date, c.sort_order",
+        "format": "table",
+        "refId": "A"
+      }],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "min": 80, "max": 100,
+          "custom": {
+            "lineWidth": 2,
+            "pointSize": 8,
+            "spanNulls": true,
+            "fillOpacity": 10
+          },
+          "color": { "mode": "palette-classic" }
+        }
+      },
+      "options": {
+        "legend": { "displayMode": "list", "placement": "bottom" },
+        "tooltip": { "mode": "multi" }
+      },
+      "transformations": [
+        { "id": "prepareTimeSeries", "options": { "format": "multi" } }
+      ]
+    },
+    {
+      "type": "text",
+      "title": "",
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 22 },
+      "id": 39,
+      "options": {
+        "mode": "html",
+        "content": "<div style=\"text-align:center;padding:2px 0\"><h3 style=\"margin:0;color:#8899aa;letter-spacing:1px\">📋 DETAILED KPI BREAKDOWN</h3></div>"
+      }
+    },
+    {
+      "type": "table",
+      "title": "Security Readiness KPIs",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 23 },
+      "id": 40,
+      "datasource": { "type": "postgres", "uid": "" },
+      "targets": [{
+        "rawSql": "SELECT kpi_name as \"KPI\", target_value as \"Target\", actual_value as \"Actual\", status as \"Status\", CASE WHEN target_value IS NOT NULL AND target_value != 0 THEN ROUND((actual_value - target_value)::numeric, 1) END as \"Variance\" FROM v_kpi_status WHERE event_name = '${event}' AND category = 'Security Readiness' ORDER BY kpi_name",
+        "format": "table",
+        "refId": "A"
+      }],
+      "fieldConfig": {
+        "overrides": [
+          { "matcher": { "id": "byName", "options": "Status" }, "properties": [
+            { "id": "custom.cellOptions", "value": { "type": "color-text" } },
+            { "id": "mappings", "value": [
+              { "type": "value", "options": { "On Target": { "color": "#06D6A0", "text": "✅ On Target" } } },
+              { "type": "value", "options": { "Needs Attention": { "color": "#FFD166", "text": "⚠️ Attention" } } },
+              { "type": "value", "options": { "Below Target": { "color": "#EF476F", "text": "❌ Below" } } },
+              { "type": "value", "options": { "Info": { "color": "#3A86FF", "text": "ℹ️ Info" } } }
+            ]}
+          ]}
+        ]
+      },
+      "options": { "showHeader": true, "footer": { "show": false } }
+    },
+    {
+      "type": "table",
+      "title": "Crowd Management KPIs",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 23 },
+      "id": 41,
+      "datasource": { "type": "postgres", "uid": "" },
+      "targets": [{
+        "rawSql": "SELECT kpi_name as \"KPI\", target_value as \"Target\", actual_value as \"Actual\", status as \"Status\", CASE WHEN target_value IS NOT NULL AND target_value != 0 THEN ROUND((actual_value - target_value)::numeric, 1) END as \"Variance\" FROM v_kpi_status WHERE event_name = '${event}' AND category = 'Crowd Management' ORDER BY kpi_name",
+        "format": "table",
+        "refId": "A"
+      }],
+      "fieldConfig": {
+        "overrides": [
+          { "matcher": { "id": "byName", "options": "Status" }, "properties": [
+            { "id": "custom.cellOptions", "value": { "type": "color-text" } },
+            { "id": "mappings", "value": [
+              { "type": "value", "options": { "On Target": { "color": "#06D6A0", "text": "✅ On Target" } } },
+              { "type": "value", "options": { "Needs Attention": { "color": "#FFD166", "text": "⚠️ Attention" } } },
+              { "type": "value", "options": { "Below Target": { "color": "#EF476F", "text": "❌ Below" } } },
+              { "type": "value", "options": { "Info": { "color": "#3A86FF", "text": "ℹ️ Info" } } }
+            ]}
+          ]}
+        ]
+      },
+      "options": { "showHeader": true, "footer": { "show": false } }
+    },
+    {
+      "type": "table",
+      "title": "Screening & Inspection KPIs",
+      "gridPos": { "h": 6, "w": 8, "x": 0, "y": 31 },
+      "id": 42,
+      "datasource": { "type": "postgres", "uid": "" },
+      "targets": [{
+        "rawSql": "SELECT kpi_name as \"KPI\", target_value as \"Target\", actual_value as \"Actual\", status as \"Status\" FROM v_kpi_status WHERE event_name = '${event}' AND category = 'Screening & Inspection' ORDER BY kpi_name",
+        "format": "table",
+        "refId": "A"
+      }],
+      "fieldConfig": {
+        "overrides": [
+          { "matcher": { "id": "byName", "options": "Status" }, "properties": [
+            { "id": "custom.cellOptions", "value": { "type": "color-text" } },
+            { "id": "mappings", "value": [
+              { "type": "value", "options": { "On Target": { "color": "#06D6A0", "text": "✅ On Target" } } },
+              { "type": "value", "options": { "Needs Attention": { "color": "#FFD166", "text": "⚠️ Attention" } } },
+              { "type": "value", "options": { "Info": { "color": "#3A86FF", "text": "ℹ️ Info" } } }
+            ]}
+          ]}
+        ]
+      }
+    },
+    {
+      "type": "table",
+      "title": "Emergency Response KPIs",
+      "gridPos": { "h": 6, "w": 8, "x": 8, "y": 31 },
+      "id": 43,
+      "datasource": { "type": "postgres", "uid": "" },
+      "targets": [{
+        "rawSql": "SELECT kpi_name as \"KPI\", target_value as \"Target\", actual_value as \"Actual\", status as \"Status\" FROM v_kpi_status WHERE event_name = '${event}' AND category = 'Emergency Response' ORDER BY kpi_name",
+        "format": "table",
+        "refId": "A"
+      }],
+      "fieldConfig": {
+        "overrides": [
+          { "matcher": { "id": "byName", "options": "Status" }, "properties": [
+            { "id": "custom.cellOptions", "value": { "type": "color-text" } },
+            { "id": "mappings", "value": [
+              { "type": "value", "options": { "On Target": { "color": "#06D6A0", "text": "✅ On Target" } } },
+              { "type": "value", "options": { "Needs Attention": { "color": "#FFD166", "text": "⚠️ Attention" } } },
+              { "type": "value", "options": { "Info": { "color": "#3A86FF", "text": "ℹ️ Info" } } }
+            ]}
+          ]}
+        ]
+      }
+    },
+    {
+      "type": "table",
+      "title": "Interagency / Cybersecurity / Fan Experience KPIs",
+      "gridPos": { "h": 6, "w": 8, "x": 16, "y": 31 },
+      "id": 44,
+      "datasource": { "type": "postgres", "uid": "" },
+      "targets": [{
+        "rawSql": "SELECT category as \"Category\", kpi_name as \"KPI\", target_value as \"Target\", actual_value as \"Actual\", status as \"Status\" FROM v_kpi_status WHERE event_name = '${event}' AND category IN ('Interagency Coordination', 'Cybersecurity', 'Fan Security Experience') ORDER BY category, kpi_name",
+        "format": "table",
+        "refId": "A"
+      }],
+      "fieldConfig": {
+        "overrides": [
+          { "matcher": { "id": "byName", "options": "Status" }, "properties": [
+            { "id": "custom.cellOptions", "value": { "type": "color-text" } },
+            { "id": "mappings", "value": [
+              { "type": "value", "options": { "On Target": { "color": "#06D6A0", "text": "✅ On Target" } } },
+              { "type": "value", "options": { "Needs Attention": { "color": "#FFD166", "text": "⚠️ Attention" } } },
+              { "type": "value", "options": { "Info": { "color": "#3A86FF", "text": "ℹ️ Info" } } }
+            ]}
+          ]}
+        ]
+      }
+    }
+  ],
+  "refresh": "10s",
+  "schemaVersion": 39,
+  "style": "dark",
+  "tags": ["security", "stadium", "kpi"],
+  "templating": {
+    "list": [
+      {
+        "current": { "selected": true, "text": "International Friendly", "value": "International Friendly" },
+        "datasource": { "type": "postgres", "uid": "" },
+        "definition": "SELECT event_name FROM events ORDER BY event_date DESC",
+        "name": "event",
+        "label": "Event",
+        "query": "SELECT event_name FROM events ORDER BY event_date DESC",
+        "type": "query",
+        "refresh": 1,
+        "sort": 0
+      }
+    ]
+  },
+  "time": { "from": "now-90d", "to": "now" },
+  "title": "Stadium Security KPI Dashboard",
+  "uid": "stadium-security-main",
+  "version": 1
+}
